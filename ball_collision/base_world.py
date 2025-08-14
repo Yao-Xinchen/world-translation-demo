@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import genesis as gs
 import torch
 import argparse
@@ -36,13 +34,16 @@ class BaseWorld:
             show_viewer=show_vis,
         )
 
+        init_pos = (0.0, 0.0, 1.0)
+        self.init_pos = torch.tensor(init_pos).unsqueeze(0).repeat(self.n_envs, 1)
+
         self.ball: RigidEntity = self.scene.add_entity(
             morph=gs.morphs.Sphere(
                 radius=0.1,
-                pos=(0.0, 0.0, 1.0),
+                pos=init_pos,
             ),
             material=gs.materials.rigid.Rigid(
-                rho=1000.0,
+                rho=500.0,
                 friction=friction,
                 coup_friction=friction,
             )
@@ -108,16 +109,18 @@ class BaseWorld:
         random_directions = random_directions / torch.norm(random_directions, dim=1, keepdim=True)
         random_speeds = torch.rand(self.n_envs, 1) * 10 + 5  # uniform between 5 and 15
         batch_velocities = random_directions * random_speeds
-        
+
         # Print velocities for each environment
         for i in range(self.n_envs):
-            print(f"Env {i} ball initial velocity: [{batch_velocities[i, 0]:.2f}, {batch_velocities[i, 1]:.2f}, {batch_velocities[i, 2]:.2f}]")
-        
+            print(
+                f"Env {i} ball initial velocity: [{batch_velocities[i, 0]:.2f}, {batch_velocities[i, 1]:.2f}, {batch_velocities[i, 2]:.2f}]")
+
         self.vel_idx = [0, 1, 2]
         self.ball.set_dofs_velocity(batch_velocities, self.vel_idx)
 
         self.obs = self.ball.get_dofs_velocity(self.vel_idx)
         self.last_obs = self.obs
+        self.step_count = 0
 
     def physics_step(self):
         self.scene.step()
@@ -136,6 +139,28 @@ class BaseWorld:
 
     def get_n_envs(self):
         return self.n_envs
+
+    def reset(self):
+        # Reset ball position to initial position
+        self.ball.set_dofs_position(self.init_pos, [0, 1, 2])
+
+        # Generate new random velocities
+        random_directions = torch.randn(self.n_envs, 3)
+        random_directions = random_directions / torch.norm(random_directions, dim=1, keepdim=True)
+        random_speeds = torch.rand(self.n_envs, 1) * 10 + 5  # uniform between 5 and 15
+        batch_velocities = random_directions * random_speeds
+
+        # Set new velocities
+        self.ball.set_dofs_velocity(batch_velocities, self.vel_idx)
+
+        # Update observations
+        self.obs = self.ball.get_dofs_velocity(self.vel_idx)
+        self.last_obs = self.obs
+
+        # Print new velocities for each environment
+        for i in range(self.n_envs):
+            print(
+                f"Reset Env {i} ball velocity: [{batch_velocities[i, 0]:.2f}, {batch_velocities[i, 1]:.2f}, {batch_velocities[i, 2]:.2f}]")
 
 
 def main():
@@ -159,9 +184,16 @@ def main():
     )
 
     try:
+        step_count = 0
         while True:
             world.physics_step()
             obs = world.get_obs()
+            step_count += 1
+
+            if step_count % 500 == 0:
+                print(f"Resetting at step {step_count}")
+                world.reset()
+
     except KeyboardInterrupt:
         print("Simulation stopped by user.")
 
