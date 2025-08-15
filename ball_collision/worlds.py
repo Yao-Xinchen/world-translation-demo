@@ -154,7 +154,7 @@ class BaseWorld:
             random_speeds = torch.rand(self.n_envs, 1) * 10 + 5  # uniform between 5 and 15
             batch_velocities = random_directions * random_speeds
         else:
-            batch_velocities = torch.tensor([10.0, 0.0, 0.0]).unsqueeze(0).repeat(self.n_envs, 1)
+            batch_velocities = torch.tensor([5.0, 0.0, 0.0]).unsqueeze(0).repeat(self.n_envs, 1)
 
         # Set new velocities
         self.ball.set_dofs_velocity(batch_velocities, self.vel_idx)

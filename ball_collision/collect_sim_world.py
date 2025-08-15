@@ -16,7 +16,7 @@ def main():
         step_count = 0
         while True:
             # Reset before physics step, so intermediate steps are not collected
-            if step_count % 400 == 0:
+            if step_count % 800 == 0:
                 world.reset()
                 print(f"Resetting world at step {step_count}")
 

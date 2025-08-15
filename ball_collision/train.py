@@ -4,8 +4,10 @@ from world_translation.train import Trainer
 
 def main():
     trainer = Trainer(
-        source_data_dir="./data/data_sim",
-        target_data_dir="./data/data_real",
+        data_dir_A="./data/data_sim",
+        data_dir_B="./data/data_real",
+        world_name_A="sim-world",
+        world_name_B="real-world",
         latent_dim=256,
         device=torch.device('cuda')
     )
