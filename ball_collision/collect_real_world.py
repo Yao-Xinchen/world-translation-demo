@@ -1,14 +1,14 @@
 import torch
 from world_translation.collect import TransitionCollector
-from base_world import BaseWorld
+from worlds import RealWorld
 
 
 def main():
-    world = BaseWorld(headless=True, gravity=2.0, friction=0.1, n_envs=256)
-    collector = TransitionCollector("./data/data_sim", obs_dim=3, action_dim=0, buffer_size=10000, chunk_size=50000)
+    world = RealWorld()
+    collector = TransitionCollector("./data/data_real", obs_dim=3, action_dim=0, buffer_size=1000, chunk_size=5000)
 
     collector.start_collection()
-    print("Starting simulation data collection...")
+    print("Starting data collection...")
 
     action = torch.zeros(world.get_n_envs(), 0)  # No action in this case
 

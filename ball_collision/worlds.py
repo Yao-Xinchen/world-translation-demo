@@ -1,7 +1,6 @@
 import genesis as gs
 import torch
-import argparse
-
+from cv2.version import headless
 from genesis.engine.entities import RigidEntity
 
 
@@ -163,40 +162,12 @@ class BaseWorld:
                 f"Reset Env {i} ball velocity: [{batch_velocities[i, 0]:.2f}, {batch_velocities[i, 1]:.2f}, {batch_velocities[i, 2]:.2f}]")
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Ball collision simulation using Genesis')
-    parser.add_argument('--headless', action='store_true',
-                        help='Run in headless mode')
-    parser.add_argument('--n_envs', type=int, default=1,
-                        help='Number of parallel environments (default: 1)')
-    parser.add_argument('--gravity', type=float, default=0.0,
-                        help='Gravity acceleration (default: 0.0)')
-    parser.add_argument('--friction', type=float, default=0.1,
-                        help='Friction coefficient (default: 0.1)')
-
-    args = parser.parse_args()
-
-    world = BaseWorld(
-        headless=args.headless,
-        gravity=args.gravity,
-        friction=args.friction,
-        n_envs=args.n_envs
-    )
-
-    try:
-        step_count = 0
-        while True:
-            world.physics_step()
-            obs = world.get_obs()
-            step_count += 1
-
-            if step_count % 500 == 0:
-                print(f"Resetting at step {step_count}")
-                world.reset()
-
-    except KeyboardInterrupt:
-        print("Simulation stopped by user.")
+class RealWorld(BaseWorld):
+    def __init__(self):
+        super().__init__(headless=False, gravity=9.81, friction=0.5, n_envs=1)
 
 
-if __name__ == "__main__":
-    main()
+class SimWorld(BaseWorld):
+    def __init__(self, n_envs=256):
+        _headless = True if n_envs > 1 else False
+        super().__init__(headless=_headless, gravity=2.0, friction=0.1, n_envs=n_envs)
