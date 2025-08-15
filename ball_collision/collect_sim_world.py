@@ -4,7 +4,7 @@ from worlds import SimWorld
 
 
 def main():
-    world = SimWorld(n_envs=256)
+    world = SimWorld(n_envs=256, rand=True)
     collector = TransitionCollector("./data/data_sim", obs_dim=3, action_dim=0, buffer_size=10000, chunk_size=50000)
 
     collector.start_collection()

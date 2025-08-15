@@ -2,7 +2,7 @@ from worlds import SimWorld
 
 
 def main():
-    world = SimWorld(n_envs=256)
+    world = SimWorld(n_envs=1, rand=False)
 
     try:
         step_count = 0

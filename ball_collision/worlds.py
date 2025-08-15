@@ -1,11 +1,10 @@
 import genesis as gs
 import torch
-from cv2.version import headless
 from genesis.engine.entities import RigidEntity
 
 
 class BaseWorld:
-    def __init__(self, headless=False, gravity=0.0, friction=0.1, n_envs=1):
+    def __init__(self, headless=False, gravity=0.0, friction=0.1, n_envs=1, rand=True):
         gs.init(backend=gs.gpu)
 
         self.n_envs = n_envs
@@ -103,11 +102,16 @@ class BaseWorld:
 
         self.scene.build(n_envs=self.n_envs)
 
-        # Initialize random velocities for each environment
-        random_directions = torch.randn(self.n_envs, 3)
-        random_directions = random_directions / torch.norm(random_directions, dim=1, keepdim=True)
-        random_speeds = torch.rand(self.n_envs, 1) * 10 + 5  # uniform between 5 and 15
-        batch_velocities = random_directions * random_speeds
+        self.rand = rand
+
+        # Initialize velocities for each environment
+        if self.rand:
+            random_directions = torch.randn(self.n_envs, 3)
+            random_directions = random_directions / torch.norm(random_directions, dim=1, keepdim=True)
+            random_speeds = torch.rand(self.n_envs, 1) * 10 + 5  # uniform between 5 and 15
+            batch_velocities = random_directions * random_speeds
+        else:
+            batch_velocities = torch.tensor([8.0, 0.0, 0.0]).unsqueeze(0).repeat(self.n_envs, 1)
 
         # Print velocities for each environment
         for i in range(self.n_envs):
@@ -143,11 +147,14 @@ class BaseWorld:
         # Reset ball position to initial position
         self.ball.set_dofs_position(self.init_pos, [0, 1, 2])
 
-        # Generate new random velocities
-        random_directions = torch.randn(self.n_envs, 3)
-        random_directions = random_directions / torch.norm(random_directions, dim=1, keepdim=True)
-        random_speeds = torch.rand(self.n_envs, 1) * 10 + 5  # uniform between 5 and 15
-        batch_velocities = random_directions * random_speeds
+        # Generate velocities based on rand parameter
+        if self.rand:
+            random_directions = torch.randn(self.n_envs, 3)
+            random_directions = random_directions / torch.norm(random_directions, dim=1, keepdim=True)
+            random_speeds = torch.rand(self.n_envs, 1) * 10 + 5  # uniform between 5 and 15
+            batch_velocities = random_directions * random_speeds
+        else:
+            batch_velocities = torch.tensor([10.0, 0.0, 0.0]).unsqueeze(0).repeat(self.n_envs, 1)
 
         # Set new velocities
         self.ball.set_dofs_velocity(batch_velocities, self.vel_idx)
@@ -163,11 +170,11 @@ class BaseWorld:
 
 
 class RealWorld(BaseWorld):
-    def __init__(self):
-        super().__init__(headless=False, gravity=9.81, friction=0.5, n_envs=1)
+    def __init__(self, rand=True):
+        super().__init__(headless=False, gravity=9.81, friction=0.5, n_envs=1, rand=rand)
 
 
 class SimWorld(BaseWorld):
-    def __init__(self, n_envs=256):
+    def __init__(self, n_envs=256, rand=True):
         _headless = True if n_envs > 1 else False
-        super().__init__(headless=_headless, gravity=2.0, friction=0.1, n_envs=n_envs)
+        super().__init__(headless=_headless, gravity=1.0, friction=0.1, n_envs=n_envs, rand=rand)

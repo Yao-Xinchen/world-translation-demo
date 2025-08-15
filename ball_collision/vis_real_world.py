@@ -2,7 +2,7 @@ from worlds import RealWorld
 
 
 def main():
-    world = RealWorld()
+    world = RealWorld(rand=False)
 
     try:
         step_count = 0
