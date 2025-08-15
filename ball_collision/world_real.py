@@ -5,7 +5,7 @@ from base_world import BaseWorld
 
 def main():
     world = BaseWorld(headless=False, gravity=9.81, friction=0.5, n_envs=1)
-    collector = TransitionCollector("./data_real", obs_dim=3, action_dim=0, buffer_size=1000, chunk_size=5000)
+    collector = TransitionCollector("./data/data_real", obs_dim=3, action_dim=0, buffer_size=1000, chunk_size=5000)
 
     collector.start_collection()
     print("Starting data collection...")

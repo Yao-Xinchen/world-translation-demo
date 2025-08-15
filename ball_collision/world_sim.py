@@ -4,8 +4,8 @@ from base_world import BaseWorld
 
 
 def main():
-    world = BaseWorld(headless=True, gravity=2.0, friction=0.5, n_envs=256)
-    collector = TransitionCollector("./data_sim", obs_dim=3, action_dim=0, buffer_size=10000, chunk_size=50000)
+    world = BaseWorld(headless=True, gravity=2.0, friction=0.1, n_envs=256)
+    collector = TransitionCollector("./data/data_sim", obs_dim=3, action_dim=0, buffer_size=10000, chunk_size=50000)
 
     collector.start_collection()
     print("Starting simulation data collection...")
