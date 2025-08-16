@@ -4,7 +4,7 @@ from worlds import RealWorld
 
 
 def main():
-    world = RealWorld(rand=True)
+    world = RealWorld(rand=True, headless=True)
     collector = TransitionCollector("./data/data_real", obs_dim=3, action_dim=0, buffer_size=1000, chunk_size=5000)
 
     collector.start_collection()

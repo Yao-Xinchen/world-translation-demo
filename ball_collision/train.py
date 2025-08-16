@@ -9,13 +9,19 @@ def main():
         world_name_A="sim-world",
         world_name_B="real-world",
         latent_dim=256,
+        train_name="ball_collision",
         device=torch.device('cuda')
     )
 
-    trainer.configure(batch_size=128)
+    trainer.configure(
+        batch_size=256,
+        lambda_cycle=10.0,
+        lr_lambda=lambda epoch: 0.6,
+        num_workers=16,
+    )
 
     trainer.train(
-        num_epochs=200,
+        num_epochs=1000,
         save_freq=10,
     )
 

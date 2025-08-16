@@ -170,8 +170,8 @@ class BaseWorld:
 
 
 class RealWorld(BaseWorld):
-    def __init__(self, rand=True):
-        super().__init__(headless=False, gravity=9.81, friction=0.5, n_envs=1, rand=rand)
+    def __init__(self, rand=True, headless=False):
+        super().__init__(headless=headless, gravity=9.81, friction=0.5, n_envs=1, rand=rand)
 
 
 class SimWorld(BaseWorld):
